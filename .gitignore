@@ -1,0 +1,14 @@
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Data and output
+data/
+output_plots/
+
+
+question1.txt
+
+report.tex
