@@ -107,9 +107,9 @@ for label, cnt in label_counts.items():
 
 fig, ax = plt.subplots(figsize=(12, 5))
 label_counts.plot(kind="bar", ax=ax, color="steelblue", edgecolor="black")
-ax.set_title("Κατανομή Κλάσεων (Label)", fontsize=14)
-ax.set_xlabel("Κλάση")
-ax.set_ylabel("Αριθμός Εγγραφών")
+ax.set_title("Class Distribution (Label)", fontsize=14)
+ax.set_xlabel("Class")
+ax.set_ylabel("Number of Flows")
 ax.tick_params(axis="x", rotation=45)
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_FOLDER, "01_label_distribution.png"), dpi=150)
@@ -155,7 +155,7 @@ for i, col in enumerate(box_cols[:10]):
     numeric_df[col].plot(kind="box", ax=axes[i], vert=True)
     axes[i].set_title(col, fontsize=8)
     axes[i].tick_params(axis="x", labelbottom=False)
-plt.suptitle("Boxplots — Εντοπισμός Ακραίων Τιμών", fontsize=14)
+plt.suptitle("Boxplots - Outlier Detection", fontsize=14)
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_FOLDER, "02_boxplots.png"), dpi=150)
 plt.close()
@@ -179,7 +179,7 @@ sns.heatmap(
     linewidths=0.3,
     ax=ax
 )
-ax.set_title("Heatmap Συσχέτισης (πρώτες 20 στήλες)", fontsize=14)
+ax.set_title("Correlation Heatmap (first 20 features)", fontsize=14)
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_FOLDER, "03_correlation_heatmap.png"), dpi=150)
 plt.close()
@@ -228,7 +228,7 @@ print(f"low variance columns (<1%): {low_var_cols}")
 
 
 print("\n" + "=" * 60)
-print("step 10: feature selection — final dataset")
+print("step 10: feature selection - final dataset")
 print("=" * 60)
 
 cols_to_remove = set()
@@ -262,5 +262,5 @@ print(f" ended with   : {df_final.shape[1]} cols")
 print(f" rows         : {df_final.shape[0]:,}")
 print(f" saved        : output_plots/dataset_cleaned.csv")
 print("\n" + "=" * 60)
-print("done — check output_plots/")
+print("done - check output_plots/")
 print("=" * 60)

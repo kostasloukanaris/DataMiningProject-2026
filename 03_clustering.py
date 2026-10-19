@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 OUTPUT_FOLDER = "./output_plots"
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-# load cleaned dataset from question 1
+# load cleaned dataset produced by 01_eda.py
 #Label is kept only for evaluation after clustering, not using it now
 DF_PATH = "output_plots/dataset_cleaned.csv"
 df = pd.read_csv(DF_PATH)
@@ -28,20 +28,20 @@ X = df.drop(columns=["Label"])
 y_label = df["Label"]
 
 print("=" * 60)
-print("Question 3 - Clustering")
+print("Clustering")
 print("=" * 60)
 print(f"rows: {len(df):,}")
 print(f"features: {X.shape[1]}")
 
-# scale features (clustering is scale-sensitive)
+#scale features (clustering is scale-sensitive)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# sample random for heavy clustering algorithms
+#sample random for heavy clustering algorithms
 SAMPLE_SIZE = 50000
 if len(X_scaled) > SAMPLE_SIZE:
     rng = np.random.RandomState(67)
-    idx = rng.choice(len(X_scaled), size=SAMPLE_SIZE, replace=False) #random sample without replacement, so unique
+    idx = rng.choice(len(X_scaled), size=SAMPLE_SIZE, replace=False) #random sample without replacement, so its unique
     X_work = X_scaled[idx]
     y_work = y_label.iloc[idx].reset_index(drop=True) #match indexes with working X 
     print(f"using sample: {SAMPLE_SIZE:,} rows")
@@ -77,9 +77,8 @@ def cluster_scores(X_in, labels):
 
 results = []
 
-# --------------------------------------------
-# K-Means
-# --------------------------------------------
+
+#K-Means
 print("\n" + "=" * 60)
 print("K-MEANS")
 print("=" * 60)
@@ -108,7 +107,7 @@ for k in k_values:
     k_sil.append(sil)
     k_db.append(dbi)
 
-# plot metrics vs k
+#plot metrics vs k
 fig, ax = plt.subplots(figsize=(8, 4))
 ax.plot(k_values, k_sil, marker="o", label="Silhouette")
 ax.set_xlabel("k")
@@ -129,7 +128,7 @@ plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_FOLDER, "06_kmeans_davies_bouldin.png"), dpi=150)
 plt.close()
 
-# pick best k by max silhouette
+#pick best k by max silhouette
 best_k_idx = int(np.nanargmax(k_sil)) #index of largest silhouette score
 best_k = k_values[best_k_idx]
 print(f"best k by silhouette: {best_k}")
@@ -137,9 +136,8 @@ print(f"best k by silhouette: {best_k}")
 km_best = KMeans(n_clusters=best_k, n_init=10, random_state=42)
 km_labels = km_best.fit_predict(X_work)
 
-# --------------------------------------------
+
 # Hierarchical Clustering
-# --------------------------------------------
 print("\n" + "=" * 60)
 print("HIERARCHICAL")
 print("=" * 60)
@@ -167,7 +165,7 @@ for linkage in linkages:
             "nmi_vs_label": np.nan
         })
 
-# pick best hierarchical by max silhouette
+#pick best hierarchical by max silhouette
 hc_rows = [r for r in results if r["algorithm"] == "Hierarchical"]
 hc_best = max(hc_rows, key=lambda r: r["silhouette"] if not np.isnan(r["silhouette"]) else -1) #for all dicts pick the one with the max silhouette score
 print(f"best hierarchical by silhouette: {hc_best['params']}")
@@ -178,9 +176,8 @@ best_hc_k = int(hc_best["params"].split("k=")[1])
 hc_best_model = AgglomerativeClustering(n_clusters=best_hc_k, linkage=best_hc_linkage)
 hc_labels = hc_best_model.fit_predict(X_work)
 
-# --------------------------------------------
+
 # DBSCAN
-# --------------------------------------------
 print("\n" + "=" * 60)
 print("DBSCAN")
 print("=" * 60)
@@ -205,7 +202,7 @@ for eps in eps_values:
             "nmi_vs_label": np.nan
         })
 
-# pick best DBSCAN by max silhouette (ignore NaN)
+#pick best DBSCAN by max silhouette (ignore NaN)
 db_rows = [r for r in results if r["algorithm"] == "DBSCAN" and not np.isnan(r["silhouette"])]
 if db_rows:
     db_best = max(db_rows, key=lambda r: r["silhouette"])
@@ -214,9 +211,8 @@ else:
     db_best = None
     print("no valid DBSCAN result (all noise or single cluster)")
 
-# --------------------------------------------
-# PCA plots for best models
-# --------------------------------------------
+
+#PCA plots for best models
 print("\n" + "=" * 60)
 print("PCA VISUALS")
 print("=" * 60)
@@ -260,9 +256,8 @@ if db_best is not None:
     plt.savefig(os.path.join(OUTPUT_FOLDER, "09_dbscan_pca.png"), dpi=150)
     plt.close()
 
-# --------------------------------------------
+
 # Save results and label comparisons
-# --------------------------------------------
 print("\n" + "=" * 60)
 print("RESULTS")
 print("=" * 60)
